@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: dim_customer
+    columns:
+      - name: CUSTOMER_ID
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_product
+    columns:
+      - name: STOCK_CODE
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_date
+    columns:
+      - name: DATE_ID
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_sales
+    columns:
+      - name: SALE_ID
+        tests:
+          - unique
+          - not_null
+      - name: CUSTOMER_ID
+        tests:
+          - not_null
+      - name: STOCK_CODE
+        tests:
+          - not_null
+      - name: DATE_ID
+        tests:
+          - not_null

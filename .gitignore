@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.env
+venv/
+.venv/
+
+# Sensitive files
+*.csv
+*.json
+
+# dbt
+retail_dbt/target/
+retail_dbt/dbt_packages/
+retail_dbt/logs/
+
+# VS Code
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini

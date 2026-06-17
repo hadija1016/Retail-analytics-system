@@ -1,0 +1,7 @@
+flask
+pandas
+snowflake-connector-python
+requests
+plotly
+beautifulsoup4
+dbt-snowflake

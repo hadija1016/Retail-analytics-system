@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retail Analytics Engine</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f4f6f9; color: #1a1a1a; }
+
+        header {
+            background: linear-gradient(90deg, #1b4332, #2d6a4f);
+            padding: 20px 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 { color: #ffffff; font-size: 28px; font-weight: 900; }
+        header p { color: #b7e4c7; font-size: 14px; margin-top: 5px; }
+        .badge { background: #52b788; color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            padding: 25px 35px 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            border-left: 5px solid #2d6a4f;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .stat-card .label { color: #555; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        .stat-card .value { color: #1b4332; font-size: 32px; font-weight: 900; margin-top: 8px; }
+        .stat-card .sub { color: #888; font-size: 12px; margin-top: 5px; }
+
+        .chart-full {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin: 0 35px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 0 35px 20px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .chart-full h3, .chart-card h3 {
+            color: #1b4332;
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #b7e4c7;
+        }
+
+        .ai-section {
+            margin: 0 35px 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid #2d6a4f;
+        }
+        .ai-section h3 { color: #1b4332; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .ai-section p { color: #666; font-size: 14px; margin-bottom: 18px; }
+
+        .search-bar { display: flex; gap: 12px; margin-bottom: 18px; }
+        .search-bar input {
+            flex: 1; padding: 14px 18px;
+            border-radius: 8px; border: 2px solid #b7e4c7;
+            background: #f4f6f9; color: #1a1a1a; font-size: 15px; outline: none;
+        }
+        .search-bar input:focus { border-color: #2d6a4f; }
+        .search-bar button {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #1b4332, #2d6a4f);
+            color: white; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 15px; font-weight: 800;
+        }
+        .search-bar button:hover { opacity: 0.9; }
+
+        #sql-box {
+            background: #f0fdf4; border: 1px solid #b7e4c7;
+            padding: 14px; border-radius: 8px;
+            font-family: monospace; font-size: 13px; color: #1b4332;
+            margin-bottom: 15px; display: none; white-space: pre-wrap;
+        }
+        #result-box { border-radius: 8px; overflow-x: auto; display: none; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: #1b4332; color: white; padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 700; }
+        td { padding: 10px 16px; border-bottom: 1px solid #e8f5e9; color: #1a1a1a; }
+        tr:hover td { background: #f0fdf4; }
+
+        #loading { color: #2d6a4f; font-weight: 700; display: none; margin-bottom: 10px; font-size: 14px; }
+        #error-box { color: #dc2626; padding: 10px; display: none; font-weight: 600; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>🛒 Enterprise Retail Analytics Engine</h1>
+        <p>Data Warehousing Capstone — Snowflake + dbt + Groq AI</p>
+    </div>
+    <div class="badge">🟢 LIVE</div>
+</header>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="label">💰 Total Revenue</div>
+        <div class="value">£337K</div>
+        <div class="sub">All time</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">📦 Orders</div>
+        <div class="value">937</div>
+        <div class="sub">Invoices</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">👥 Customers</div>
+        <div class="value">560</div>
+        <div class="sub">Unique</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">🏷️ Products</div>
+        <div class="value">2,408</div>
+        <div class="sub">SKUs</div>
+    </div>
+    <div class="stat-card">
+        <div class="label">🌍 Countries</div>
+        <div class="value">38</div>
+        <div class="sub">Regions</div>
+    </div>
+</div>
+
+<!-- Daily Revenue Full Width -->
+<div class="chart-full">
+    <h3>📈 Daily Revenue Trends (2021)</h3>
+    <div id="revenue-chart"></div>
+</div>
+
+<!-- 2 Charts Row -->
+<div class="charts-grid">
+    <div class="chart-card">
+        <h3>🏆 Revenue by Product Category</h3>
+        <div id="category-chart"></div>
+    </div>
+    <div class="chart-card">
+        <h3>👥 Top 10 Customers by Revenue</h3>
+        <div id="customer-chart"></div>
+    </div>
+</div>
+
+<!-- AI Section -->
+<div class="ai-section">
+    <h3>🤖 Ask Your Data (Groq AI)</h3>
+    <p>Type a business question in plain English — AI generates SQL and fetches live results from Snowflake!</p>
+    <div class="search-bar">
+        <input type="text" id="question" placeholder='e.g. "Show total revenue for top 5 customers"' />
+        <button onclick="askAI()">🔍 Ask AI</button>
+    </div>
+    <div id="loading">⏳ Generating SQL and fetching results...</div>
+    <div id="error-box"></div>
+    <div id="sql-box"></div>
+    <div id="result-box"></div>
+</div>
+
+<script>
+    var BG = 'white';
+    var FONT = { color: '#333', size: 13, family: 'Arial' };
+    var GRID = '#e8f5e9';
+    var COLORS = ['#1b4332','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2','#b7e4c7'];
+
+    Plotly.newPlot('revenue-chart', [{
+        x: {{ revenue_dates | tojson }},
+        y: {{ revenue_values | tojson }},
+        type: 'scatter', mode: 'lines',
+        line: { color: '#2d6a4f', width: 2.5 },
+        fill: 'tozeroy', fillcolor: 'rgba(45,106,79,0.12)'
+    }], {
+        paper_bgcolor: BG, plot_bgcolor: BG, font: FONT,
+        xaxis: { gridcolor: GRID, title: 'Date', titlefont: { size: 14 } },
+        yaxis: { gridcolor: GRID, title: 'Revenue (£)', titlefont: { size: 14 } },
+        margin: { t: 10, b: 55, l: 70, r: 20 },
+        height: 280
+    }, {responsive: true});
+
+    Plotly.newPlot('category-chart', [{
+        x: {{ cat_names | tojson }},
+        y: {{ cat_values | tojson }},
+        type: 'bar',
+        marker: { color: COLORS },
+        text: {{ cat_values | tojson }},
+        textposition: 'outside',
+        texttemplate: '£%{y:,.0f}',
+        textfont: { size: 12 }
+    }], {
+        paper_bgcolor: BG, plot_bgcolor: BG, font: FONT,
+        xaxis: { gridcolor: GRID, tickangle: -25, title: 'Category', titlefont: { size: 14 }, tickfont: { size: 12 } },
+        yaxis: { gridcolor: GRID, title: 'Revenue (£)', titlefont: { size: 14 } },
+        margin: { t: 30, b: 100, l: 70, r: 20 },
+        height: 300
+    }, {responsive: true});
+
+    Plotly.newPlot('customer-chart', [{
+        x: {{ cust_ids | tojson }},
+        y: {{ cust_values | tojson }},
+        type: 'bar',
+        marker: { color: '#40916c' },
+        text: {{ cust_values | tojson }},
+        textposition: 'outside',
+        texttemplate: '£%{y:,.0f}',
+        textfont: { size: 12 }
+    }], {
+        paper_bgcolor: BG, plot_bgcolor: BG, font: FONT,
+        xaxis: { gridcolor: GRID, type: 'category', tickangle: -25, title: 'Customer ID', titlefont: { size: 14 }, tickfont: { size: 12 } },
+        yaxis: { gridcolor: GRID, title: 'Revenue (£)', titlefont: { size: 14 } },
+        margin: { t: 30, b: 100, l: 70, r: 20 },
+        height: 300
+    }, {responsive: true});
+
+    function askAI() {
+        const question = document.getElementById('question').value;
+        if (!question) return;
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('sql-box').style.display = 'none';
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('error-box').style.display = 'none';
+
+        fetch('/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question })
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('sql-box').style.display = 'block';
+            document.getElementById('sql-box').textContent = '📝 Generated SQL:\n' + data.sql;
+            if (data.error) {
+                document.getElementById('error-box').style.display = 'block';
+                document.getElementById('error-box').textContent = '❌ Error: ' + data.error;
+            } else if (data.data && data.data.length > 0) {
+                document.getElementById('result-box').style.display = 'block';
+                const cols = Object.keys(data.data[0]);
+                let html = '<table><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+                data.data.forEach(row => {
+                    html += '<tr>' + cols.map(c => `<td>${row[c]}</td>`).join('') + '</tr>';
+                });
+                html += '</table>';
+                document.getElementById('result-box').innerHTML = html;
+            }
+        });
+    }
+
+    document.getElementById('question').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') askAI();
+    });
+</script>
+</body>
+</html>
